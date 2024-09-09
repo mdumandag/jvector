@@ -565,6 +565,14 @@ public class GraphIndexBuilder implements Closeable {
         // but if the entry point was deleted then we have no choice
         if (toDelete.get(graph.entry())) {
             updateEntryPoint();
+            if (!liveNodes.isEmpty() && graph.entry() == NO_ENTRY_POINT) {
+                // This might happen when the live nodes are disconnected
+                // from the graph after removing edges to the deleted nodes
+                // while adding new edges above. In this case, set a random
+                // live node as the entry point, and improve it.
+                graph.updateEntryNode(randomLiveNode());
+                updateEntryPoint();
+            }
         }
 
         // Remove the deleted nodes from the graph
